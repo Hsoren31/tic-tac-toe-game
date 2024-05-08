@@ -1,3 +1,5 @@
+//Tic tac toe game
+
 //gameboard function represents the state of the board
 function gameboard(){
    const board = [];
@@ -201,4 +203,29 @@ function screenController () {
    updateScreen();
 };
 
-screenController();
+//Start and Reset game button
+const gameInteract = (function gameInteract(){
+   const startGame = document.querySelector('#start_game');
+   const resetGame = document.querySelector('#reset_game');
+   const dialogGame = document.querySelector('#game');
+   //hide the gameboard until game starts
+   dialogGame.style.display = 'none';
+   resetGame.style.display = 'none';
+
+   //when start game is clicked we show the game board and 
+   //our reset game btn and our screen controller game
+   startGame.addEventListener('click', () => {
+      dialogGame.style.display = 'block';
+      resetGame.style.display = 'block';
+      screenController();
+   });
+
+   //reset game when clicked will clear and show our game
+   //board and restart our screen controller game
+   resetGame.addEventListener('click', () => {
+      dialogGame.style.display = 'none';
+      dialogGame.style.display = 'block';
+      screenController();
+   });
+
+})();
