@@ -14,6 +14,30 @@
     </header>
     <main>
         <button id="start_game">Start Game</button>
+        <dialog id="player_name_form">
+            <form action="#" method="post">
+                <h2>Player Select</h2>
+
+                <fieldset id="player_one_input">
+                    <legend>Player 1</legend>
+
+                    <label for="player_one">Name</label>
+                    <input
+                        type="text" id="player_one"
+                        name="player_one" placeholder="Player One Name">
+                </fieldset>
+
+                <fieldset id="player_two_input">
+                    <legend>Player 2</legend>
+                    <label for="player_two">Name</label>
+
+                    <input type="text" id="player_two"
+                        name="player_two" placeholder="Player Two Name">
+                </fieldset>
+
+                <button id="submit_names" type="submit">Continue to Game</button>
+            </form>
+        </dialog>
         <div id="game">
             <div id="player_turn"></div>
             <div id="board_container"></div>

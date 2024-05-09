@@ -49,20 +49,33 @@ function cell() {
    };
 };
 
+function createPlayer (name, marker) {
+   name = name;
+   marker = marker;
+
+   let playerScore = 0;
+   const getScore = () => playerScore;
+   const giveScore = () => playerScore++;
+
+   return {
+      name,
+      marker,
+      getScore,
+      giveScore
+   }
+};
+
 //gameController is our game flow function, it takes in two players
 // sets their markers and plays rounds of tic tac toe while checking for
 //draws or wins from the players and alternating turns between the players
-function gameController(
-   playerOneName = 'Player 1',
-   playerTwoName = 'Player 2'
-){
+function gameController(player1, player2){
    
    const board = gameboard();
    //array to hold player objects, the following functions will start the 
    //game at player ones turn and then alternate to player two and so on.
    const players = [
-      {name: playerOneName, marker: 'X'},
-      {name: playerTwoName, marker: 'O'}
+      player1,
+      player2
    ];
    
    let activePlayer = players[0];
@@ -165,8 +178,8 @@ function gameController(
 that users can click and it will trigger our play round function and we can play
 our game of tic tac toe
 */
-function screenController () {
-   const game = gameController();
+function screenController (player1, player2) {
+   const game = gameController(player1, player2);
    const playerTurnDiv = document.getElementById('player_turn');
    const boardContainer = document.getElementById('board_container');
    const board = game.getBoard;
@@ -208,24 +221,42 @@ const gameInteract = (function gameInteract(){
    const startGame = document.querySelector('#start_game');
    const resetGame = document.querySelector('#reset_game');
    const dialogGame = document.querySelector('#game');
+
+   const playerNameForm = document.querySelector('#player_name_form');
+   const submitNames = document.querySelector('#submit_names');
+
    //hide the gameboard until game starts
    dialogGame.style.display = 'none';
    resetGame.style.display = 'none';
 
-   //when start game is clicked we show the game board and 
-   //our reset game btn and our screen controller game
+   //show our player name input form when we click start game
    startGame.addEventListener('click', () => {
+      playerNameForm.showModal();
+   });
+
+   //submit player name form
+   submitNames.addEventListener('click', (e) => {
+      e.preventDefault();
+      let player1Name = document.querySelector('#player_one').value;
+      let player2Name = document.querySelector('#player_two').value;
+
+      let player1 = createPlayer(player1Name, 'X');
+      let player2 = createPlayer(player2Name, 'O');
+   
+      playerNameForm.close();
+      startGame.style.display = 'none';
       dialogGame.style.display = 'block';
       resetGame.style.display = 'block';
-      screenController();
+
+      screenController(player1, player2);
    });
 
    //reset game when clicked will clear and show our game
    //board and restart our screen controller game
    resetGame.addEventListener('click', () => {
       dialogGame.style.display = 'none';
-      dialogGame.style.display = 'block';
-      screenController();
+      startGame.style.display = 'block';
+      resetGame.style.display = 'none';
    });
-
+   
 })();
