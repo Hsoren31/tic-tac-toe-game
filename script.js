@@ -22,14 +22,16 @@ function gameboard(){
       if (!availableCell) return;
       board[row][column].addMarker(player);
    };
-//printBoard is for our console version so we can see what is going on to 
-//the state of the board
-   const printBoard = () => {
-      const boardWithCellValues = board.map((row) => row.map((cell) => cell.getValue()))
-      console.log(boardWithCellValues);
-    };
 
-   return {getBoard, placeMarker, printBoard};
+   const resetBoard = () => {
+      board.forEach((row) => {
+         row.forEach((col) => {
+            col.resetValue();
+         })
+      })
+   };
+
+   return {getBoard, placeMarker, resetBoard};
 };
 
 //cell function represents the value of our cells on the board
@@ -43,12 +45,18 @@ function cell() {
    //grab the current value of the cell
    const getValue = () => value;
 
+   const resetValue = () => {
+      value = '-';
+   };
+
    return {
       getValue,
-      addMarker
+      addMarker,
+      resetValue
    };
 };
 
+//function to create player that holds their name, marker, and score
 function createPlayer (name, marker) {
    name = name;
    marker = marker;
@@ -87,7 +95,14 @@ function gameController(player1, player2){
    const getActivePlayer = () => activePlayer;
 
    //gameWon will remain false unless one player gets three in a row
+   //gameTie will remain false unless the board is full with no wins
    let gameWon = false;
+   let gameTie = false;
+
+   const getGameStatus = () => {
+      gameWon,
+      gameTie
+   };
 
    //checkwinner will be how we test if one player has gotten three in
    //a row on the board
@@ -109,7 +124,7 @@ function gameController(player1, player2){
          [cell3, cell6, cell9],
          [cell1, cell5, cell9], //diagonal combinations
          [cell3, cell5, cell7]
-      ]
+      ];
       //for loop will loop through winning combination array
       for (let w = 0; w < winningCombinations.length; w++){
          //destruct each array in winning combinations to assign their value
@@ -124,6 +139,7 @@ function gameController(player1, player2){
             if (cellA === cellB && cellB === cellC){
                console.log(`${getActivePlayer().name} won.`);
                gameWon = true;
+               endGame();
             };
          }
       };
@@ -146,12 +162,28 @@ function gameController(player1, player2){
       //draw between the players
       if (availableCells === 0 && gameWon === false){
          console.log('it is a draw.');
+         gameTie = true;
+         endGame();
       };
    };
-   //we use this to print the board, and to log the active players turn
-   const printNewRound = () => {
-      board.printBoard();
-      console.log(`${getActivePlayer().name}'s turn`)
+
+   // end game function will end the current game and present a message to the 
+   //players whether a tie was drawn or one player won the game
+   function endGame() {
+      const gameMessage = document.querySelector('#game_messages');
+      const endMessage = document.querySelector('#end_message');
+
+      getGameStatus();
+
+      if(gameTie === true){
+         gameMessage.showModal();
+         endMessage.textContent = 'The Game has ended in a tie';
+      } else if (gameWon === true) {
+         gameMessage.showModal();
+         endMessage.textContent = `${getActivePlayer().name} won the game!`;
+      }
+
+      board.resetBoard();
    };
    /*play round function plays a single round of tic tac toe, we take in the
    selected row and column, and we use the place marker function to change
@@ -162,10 +194,7 @@ function gameController(player1, player2){
       checkForDraw();
       checkWinner();
       switchPlayerTurn();
-      printNewRound();
    };
-   //print initial board and first players turn
-   printNewRound();
 
    return {
       getActivePlayer,
@@ -221,7 +250,7 @@ const gameInteract = (function gameInteract(){
    const startGame = document.querySelector('#start_game');
    const resetGame = document.querySelector('#reset_game');
    const dialogGame = document.querySelector('#game');
-
+   const gameMessage = document.querySelector('#game_messages');
    const playerNameForm = document.querySelector('#player_name_form');
    const submitNames = document.querySelector('#submit_names');
 
@@ -257,6 +286,6 @@ const gameInteract = (function gameInteract(){
       dialogGame.style.display = 'none';
       startGame.style.display = 'block';
       resetGame.style.display = 'none';
+      gameMessage.close();
    });
-   
 })();
