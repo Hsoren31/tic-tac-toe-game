@@ -18,8 +18,6 @@ function gameboard(){
 //place marker function takes in the index of a cell and add the players
 //marker to that index, it will exit the function if the cell is already taken
    const placeMarker = (row, column, player) => {
-      const availableCell = board[row][column].getValue() === '-';
-      if (!availableCell) return;
       board[row][column].addMarker(player);
    };
 
@@ -236,6 +234,10 @@ function screenController (player1, player2) {
    };
    //click handler will trigger our play round function and update our screen
    function clickHandler(e) {
+      const availableCell = '-';
+      console.log(e.target.textContent);
+      if (e.target.textContent != availableCell) return;
+
       game.playRound(e.target.dataset.row, e.target.dataset.column);
       updateScreen();
    };
