@@ -1,22 +1,23 @@
 //Tic tac toe game
 
-//gameboard function represents the state of the board
+/* function gameboard holds the state of the board, it creates a 3 x 3 grid
+   made up of arrays, in each column we call the cell function which we define
+   later, we return multiple functions that will change the value of the column,
+   grab the gameboard, and reset the board to default values*/
 function gameboard(){
    const board = [];
    const rows = 3;
    const columns = 3;
-   //this loop creates our board, consisting of three row arrays,
-   //and three column arrays within each row array
+
    for (let row = 0; row < rows; row++) {
-      board[row] = [];
+      board[row] = [];                          
       for (let col = 0; col < columns; col++){
          board[row].push(cell());
       };
    };
-   //function grabs our board
-   const getBoard = () => board;
-//place marker function takes in the index of a cell and add the players
-//marker to that index, it will exit the function if the cell is already taken
+   
+   const getBoard = () => board;                
+
    const placeMarker = (row, column, player) => {
       board[row][column].addMarker(player);
    };
@@ -32,15 +33,16 @@ function gameboard(){
    return {getBoard, placeMarker, resetBoard};
 };
 
-//cell function represents the value of our cells on the board
+/*This function will be what holds the value of the columns
+   - is the default value
+   X or O will be the players markers */
 function cell() {
-   let value = '-';//default value
+   let value = '-';
 
    const addMarker = (player) => {
-      //changing the value to the players marker
       value = player;
    };
-   //grab the current value of the cell
+   
    const getValue = () => value;
 
    const resetValue = () => {
@@ -71,14 +73,12 @@ function createPlayer (name, marker) {
    }
 };
 
-//gameController is our game flow function, it takes in two players
-// sets their markers and plays rounds of tic tac toe while checking for
-//draws or wins from the players and alternating turns between the players
+/*game controller is the function that holds our game flow, holds our board,
+our players, game status, functions to switch players, check for winner, check
+for draw, play a single round, and end game function */
 function gameController(player1, player2){
-   
    const board = gameboard();
-   //array to hold player objects, the following functions will start the 
-   //game at player ones turn and then alternate to player two and so on.
+
    const players = [
       player1,
       player2
@@ -92,27 +92,23 @@ function gameController(player1, player2){
 
    const getActivePlayer = () => activePlayer;
 
-   //gameWon will remain false unless one player gets three in a row
-   //gameTie will remain false unless the board is full with no wins
-   let roundWon = false;
-   let roundTie = false;
+   let roundWon = false;   
+   let roundTie = false;   
 
    const getRoundStatus = () => {
       roundWon,
       roundTie
    };
-
-   //checkwinner will be how we test if one player has gotten three in
-   //a row on the board
+   /*check for winner will assign the columns variables, the we put the variables
+   into winning combinations to check against, if we come across a combinations
+   that all have the same player value we return round won to be true*/
    const checkWinner = () => {
-      //destruct the board to assign the cells a specific variable
       const [
          [cell1, cell2, cell3],
          [cell4, cell5, cell6],
          [cell7, cell8, cell9]
       ] = board.getBoard();
-      //here we assign the cell variables into winning combinations that
-      //we would see on the board
+     
       const winningCombinations = [
          [cell1, cell2, cell3], //row combinations
          [cell4, cell5, cell6],
@@ -123,17 +119,14 @@ function gameController(player1, player2){
          [cell1, cell5, cell9], //diagonal combinations
          [cell3, cell5, cell7]
       ];
-      //for loop will loop through winning combination array
+      
       for (let w = 0; w < winningCombinations.length; w++){
-         //destruct each array in winning combinations to assign their value
          const winCombination = winningCombinations[w];
          const cellA = winCombination[0].getValue();
          const cellB = winCombination[1].getValue();
          const cellC = winCombination[2].getValue();
-         //here we test if the cells are taken
+         
          if (cellA !== '-' && cellB !== '-' && cellC !== '-'){
-            //if the cells are all taken and they are the same marker
-            //the game has won and we change gameWon to true;
             if (cellA === cellB && cellB === cellC){
                getActivePlayer().giveScore();
                roundWon = true;
@@ -142,31 +135,29 @@ function gameController(player1, player2){
          }
       };
    };
-   //Checking for a draw we have to see if every cell on the board was taken
-   //without getting three in a row by either player
+  /*check for draw, will go through the board to check for any
+  unchecked cells, if our board is full with no winning combos
+  we return draw to be true*/
    const checkForDraw = () => {
-      //available cells will represent the number of cells that are equal to '-'
       let availableCells = 0;
-      const currentBoard = board.getBoard(); //grab the board to iterate through
-      //loop checks every value of the board, each one that is equal to '-' will
-      //add 1 to available cells
+      const currentBoard = board.getBoard();
+
       for(let i = 0; i < currentBoard.length; i++){
          for(let j = 0; j < currentBoard[i].length; j++){
             currentBoard[i][j].getValue() === '-'
             ? availableCells++ : availableCells;
          };
       };
-      //if there are no available cells and the game was not won, we determine a
-      //draw between the players
+
       if (availableCells === 0 && gameWon === false){
          console.log('it is a draw.');
          roundTie = true;
          endRound();
       };
    };
-
-   // end game function will end the current game and present a message to the 
-   //players whether a tie was drawn or one player won the game
+   /*end round will run if draw or win is true, and display
+   a message whether a player won or draw has occured, and 
+   resets the board to default values*/
    function endRound() {
       const roundMessage = document.querySelector('#game_messages');
       const endMessage = document.querySelector('#end_message');
@@ -186,7 +177,7 @@ function gameController(player1, player2){
    /*play round function plays a single round of tic tac toe, we take in the
    selected row and column, and we use the place marker function to change
    the cells value to the players marker, then we check for a winner, then
-   for a draw, then switch the players turns, and print the new board*/
+   for a draw, then switch the players turns*/
    const playRound = (row, column) => {
       board.placeMarker(row, column, getActivePlayer().marker);
       checkForDraw();
@@ -198,37 +189,29 @@ function gameController(player1, player2){
       getActivePlayer,
       playRound,
       getBoard: board.getBoard(),
-      resetBoard: board.resetBoard()
    };
 };
 
-/* screen controller will turn our console version game into a game with buttons
-that users can click and it will trigger our play round function and we can play
-our game of tic tac toe
+/* screen controller takes in our game controller function, and connects it
+to the screen, we use the update screen function to update the board, which
+players turn it is, and the players scores between game rounds
 */
 function screenController (player1, player2) {
    const game = gameController(player1, player2);
    const playerTurnDiv = document.getElementById('player_turn');
    const boardContainer = document.getElementById('board_container');
    const board = game.getBoard;
-   const playerScore = document.querySelector('#players_score');
-   const player1Score = document.createElement('p');
-   const player2Score = document.createElement('p');
+   const player1Score = document.getElementById('p1_score');
+   const player2Score = document.getElementById('p2_score');
 
-   //updateScreen function turns each cell in the board into a clickable
-   //button that holds the value of the row and column that it represents
    const updateScreen = () => {
       boardContainer.textContent = '';
-      playerScore.textContent = ''; //clear our board container
-      //update the players turn message
+      
       playerTurnDiv.textContent = `${game.getActivePlayer().name}'s turn...`;
 
-      //update players scores
       player1Score.textContent = `Player 1's Score: ${player1.getScore()}`;
       player2Score.textContent = `Player 2's Score: ${player2.getScore()}`;
-      playerScore.append(player1Score, player2Score);
 
-      //turn board cells into buttons with values of their row and column
       for(let row = 0; row < board.length; row++){
          for(let col = 0; col < board[row].length; col++){
             const cellButton = document.createElement('button');
@@ -238,7 +221,6 @@ function screenController (player1, player2) {
             cellButton.textContent = board[row][col].getValue();
             boardContainer.append(cellButton);
          };
-         //use html breaks to make the board display as a 3X3 board
          const br = document.createElement('br');
          boardContainer.append(br);
       };
@@ -251,24 +233,23 @@ function screenController (player1, player2) {
       game.playRound(e.target.dataset.row, e.target.dataset.column);
       updateScreen();
    };
-   //assign our click handler function to a event listener on our board container
    boardContainer.addEventListener('click', clickHandler);
    //initially update the screen
    updateScreen();
 };
 
-//Start and Reset game button
+//game interact holds our player name form, our start game button,
+//and our reset round click handler
 const gameInteract = (function gameInteract(){
    const startGame = document.querySelector('#start_game');
    const resetRound = document.querySelector('#reset_round');
-   const dialogGame = document.querySelector('#game');
+   const gameDiv = document.querySelector('#game');
    const gameMessage = document.querySelector('#game_messages');
    const playerNameForm = document.querySelector('#player_name_form');
    const submitNames = document.querySelector('#submit_names');
 
-
    //hide the gameboard until game starts
-   dialogGame.style.display = 'none';
+   gameDiv.style.display = 'none';
    resetRound.style.display = 'none';
 
    //show our player name input form when we click start game
@@ -287,7 +268,7 @@ const gameInteract = (function gameInteract(){
    
       playerNameForm.close();
       startGame.style.display = 'none';
-      dialogGame.style.display = 'block';
+      gameDiv.style.display = 'block';
       resetRound.style.display = 'block';
       screenController(player1, player2);
    });
@@ -296,6 +277,6 @@ const gameInteract = (function gameInteract(){
    //board and restart our screen controller game
    resetRound.addEventListener('click', () => {
       gameMessage.close();
-      dialogGame.style.display = 'block';
+      gameDiv.style.display = 'block';
    });
 })();
