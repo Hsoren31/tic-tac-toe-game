@@ -94,12 +94,12 @@ function gameController(player1, player2){
 
    //gameWon will remain false unless one player gets three in a row
    //gameTie will remain false unless the board is full with no wins
-   let gameWon = false;
-   let gameTie = false;
+   let roundWon = false;
+   let roundTie = false;
 
-   const getGameStatus = () => {
-      gameWon,
-      gameTie
+   const getRoundStatus = () => {
+      roundWon,
+      roundTie
    };
 
    //checkwinner will be how we test if one player has gotten three in
@@ -135,9 +135,9 @@ function gameController(player1, player2){
             //if the cells are all taken and they are the same marker
             //the game has won and we change gameWon to true;
             if (cellA === cellB && cellB === cellC){
-               console.log(`${getActivePlayer().name} won.`);
-               gameWon = true;
-               endGame();
+               getActivePlayer().giveScore();
+               roundWon = true;
+               endRound();
             };
          }
       };
@@ -160,25 +160,25 @@ function gameController(player1, player2){
       //draw between the players
       if (availableCells === 0 && gameWon === false){
          console.log('it is a draw.');
-         gameTie = true;
-         endGame();
+         roundTie = true;
+         endRound();
       };
    };
 
    // end game function will end the current game and present a message to the 
    //players whether a tie was drawn or one player won the game
-   function endGame() {
-      const gameMessage = document.querySelector('#game_messages');
+   function endRound() {
+      const roundMessage = document.querySelector('#game_messages');
       const endMessage = document.querySelector('#end_message');
 
-      getGameStatus();
+      getRoundStatus();
 
-      if(gameTie === true){
-         gameMessage.showModal();
-         endMessage.textContent = 'The Game has ended in a tie';
-      } else if (gameWon === true) {
-         gameMessage.showModal();
-         endMessage.textContent = `${getActivePlayer().name} won the game!`;
+      if(roundTie === true){
+         roundMessage.showModal();
+         endMessage.textContent = 'The round has ended in a tie';
+      } else if (roundWon === true) {
+         roundMessage.showModal();
+         endMessage.textContent = `${getActivePlayer().name} won the round!`;
       }
 
       board.resetBoard();
@@ -197,7 +197,8 @@ function gameController(player1, player2){
    return {
       getActivePlayer,
       playRound,
-      getBoard: board.getBoard()
+      getBoard: board.getBoard(),
+      resetBoard: board.resetBoard()
    };
 };
 
@@ -210,13 +211,23 @@ function screenController (player1, player2) {
    const playerTurnDiv = document.getElementById('player_turn');
    const boardContainer = document.getElementById('board_container');
    const board = game.getBoard;
+   const playerScore = document.querySelector('#players_score');
+   const player1Score = document.createElement('p');
+   const player2Score = document.createElement('p');
 
    //updateScreen function turns each cell in the board into a clickable
    //button that holds the value of the row and column that it represents
    const updateScreen = () => {
-      boardContainer.textContent = ''; //clear our board container
+      boardContainer.textContent = '';
+      playerScore.textContent = ''; //clear our board container
       //update the players turn message
       playerTurnDiv.textContent = `${game.getActivePlayer().name}'s turn...`;
+
+      //update players scores
+      player1Score.textContent = `Player 1's Score: ${player1.getScore()}`;
+      player2Score.textContent = `Player 2's Score: ${player2.getScore()}`;
+      playerScore.append(player1Score, player2Score);
+
       //turn board cells into buttons with values of their row and column
       for(let row = 0; row < board.length; row++){
          for(let col = 0; col < board[row].length; col++){
@@ -235,7 +246,6 @@ function screenController (player1, player2) {
    //click handler will trigger our play round function and update our screen
    function clickHandler(e) {
       const availableCell = '-';
-      console.log(e.target.textContent);
       if (e.target.textContent != availableCell) return;
 
       game.playRound(e.target.dataset.row, e.target.dataset.column);
@@ -250,15 +260,16 @@ function screenController (player1, player2) {
 //Start and Reset game button
 const gameInteract = (function gameInteract(){
    const startGame = document.querySelector('#start_game');
-   const resetGame = document.querySelector('#reset_game');
+   const resetRound = document.querySelector('#reset_round');
    const dialogGame = document.querySelector('#game');
    const gameMessage = document.querySelector('#game_messages');
    const playerNameForm = document.querySelector('#player_name_form');
    const submitNames = document.querySelector('#submit_names');
 
+
    //hide the gameboard until game starts
    dialogGame.style.display = 'none';
-   resetGame.style.display = 'none';
+   resetRound.style.display = 'none';
 
    //show our player name input form when we click start game
    startGame.addEventListener('click', () => {
@@ -277,17 +288,14 @@ const gameInteract = (function gameInteract(){
       playerNameForm.close();
       startGame.style.display = 'none';
       dialogGame.style.display = 'block';
-      resetGame.style.display = 'block';
-
+      resetRound.style.display = 'block';
       screenController(player1, player2);
    });
 
    //reset game when clicked will clear and show our game
    //board and restart our screen controller game
-   resetGame.addEventListener('click', () => {
-      dialogGame.style.display = 'none';
-      startGame.style.display = 'block';
-      resetGame.style.display = 'none';
+   resetRound.addEventListener('click', () => {
       gameMessage.close();
+      dialogGame.style.display = 'block';
    });
 })();
